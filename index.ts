@@ -1,4 +1,4 @@
-import { tokenize } from "./src/lexer"; // Replace 'yourLexerFile.js' with the actual file name
+import { tokenize } from "./src/lexer/lexer";
 
 const sourceCode = "MUGNO NUMERO x = 15";
 

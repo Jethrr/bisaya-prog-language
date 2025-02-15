@@ -1,5 +1,4 @@
 //MUGNO NUMERO x = 15
-
 export enum TokenType {
     //data types
     NUMBER,// number
@@ -37,14 +36,24 @@ export enum TokenType {
 
 const KEYWORDS: Record<string, TokenType> = {
     //data types
-    "MUGNO": TokenType.MUGNO,
     "NUMERO": TokenType.NUMERO,
     "LETRA": TokenType.LETRA,
     "TIPIK": TokenType.TIPIK,
     "HILO": TokenType.HILO,
-    "KAMATUORAN": TokenType.KAMATUORAN
-
-
+    "KAMATUORAN": TokenType.KAMATUORAN,
+    //keywords
+    "MUGNO": TokenType.MUGNO,
+    "TINUOD": TokenType.TINUOD,
+    "DILI_TINUOD": TokenType.DILI_TINUOD,
+    "WALA": TokenType.WALA,
+    //control structures
+    "KUNG": TokenType.KUNG,
+    "KUNG_DILI": TokenType.KUNG_DILI,
+    "KUNG_DILI_KAY": TokenType.KUNG_DILI_KAY,
+    //loops
+    "SAMTANG" : TokenType.SAMTANG,
+    "BUHAT" : TokenType.BUHAT,
+    "PARA_SA" : TokenType.PARA_SA,
 };
 
 export interface Token {
@@ -57,38 +66,37 @@ function token(value = "", type: TokenType): Token {
 }
 
 function isAlpha(src: string) {
-    return src.toUpperCase() === src.toLowerCase();
+    return src.toUpperCase() !== src.toLowerCase();
 }
 
 function isSkippable(src: string) {
-    return src === ' ' || src == '\n' || '\t';
+    return src === ' ' || src == '\n' || src ==='\t';
 }
 
 function isInt(src: string) {
     const c = src.charCodeAt(0)
     // get the unicode value of 0 to 9 which gets all numeric value, is then used to check if its lower or higher than 0 and 9 which means its not a number
-    const bounds = ['0'.charCodeAt(0), '9'.charCodeAt(0)]
+    const bounds = ["0".charCodeAt(0), "9".charCodeAt(0)]
     return c >= bounds[0] && c <= bounds[1];
 }
 
 
 export function tokenize(sourceCode: string): Token[] {
     const tokens = new Array<Token>();
-    const src = sourceCode.split('');
+    const src = sourceCode.split("");
     // delete all blank spaces
 
     while (src.length > 0) {
-        if (src[0] === '(') {
+        if (src[0] === "(") {
             tokens.push(token(src.shift(), TokenType.OPEN_PAREN));
-        } else if (src[0] === ')') {
+        } else if (src[0] === ")") {
             tokens.push(token(src.shift(), TokenType.CLOSE_PAREN))
-        } else if (src[0] === '+' || src[0] === '-' || src[0] === '*' || src[0] === '/') {
+        } else if (src[0] === "+" || src[0] === "-" || src[0] === "*" || src[0] === "/") {
             tokens.push(token(src.shift(), TokenType.BINARY_OPERATOR))
-        } else if (src[0] === '=') {
+        } else if (src[0] === "=") {
             tokens.push(token(src.shift(), TokenType.EQUALS))
         } else {
             //MULTICHARACTER TOKENS
-
             //collects all integers
             if (isInt(src[0])) {
                 let num = "";
@@ -116,7 +124,7 @@ export function tokenize(sourceCode: string): Token[] {
                 src.shift(); // Skip characters
             } else{
                 console.error("Unrecognized character found in source: ", src[0]);
-                throw new Error("Unrecognized character found in source")
+                Deno.exit()
             }
 
 
@@ -131,6 +139,10 @@ export function tokenize(sourceCode: string): Token[] {
     return tokens;
 }
 
+const source = await Deno.readTextFile("./test.txt");
+for (const token of tokenize(source)){
+    console.log(token);
+}
 
 
 

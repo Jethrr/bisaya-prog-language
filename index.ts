@@ -1,4 +1,4 @@
-import { tokenize } from "./src/lexer/lexer";
+import { tokenize } from "./src/frontend/lexer/lexer";
 
 const sourceCode = "MUGNO NUMERO x = 15";
 

@@ -1,4 +1,4 @@
-import {BinaryExpr, Expr, Identifer, NumericLiteral, Program, Stmt,} from "../ast/ast.ts";
+import {BinaryExpr, Expr, Identifer, NullLiteral, NumericLiteral, Program, Stmt,} from "../ast/ast.ts";
 import {Token, tokenize, TokenType} from "../lexer/lexer.ts";
 
 export default class Parser {
@@ -102,6 +102,9 @@ export default class Parser {
                     kind: "Identifier",
                     symbol: this.eat().value,
                 } as Identifer;
+            case TokenType.WALA:
+                this.eat();
+                return {kind : "NullLiteral", value : "WALA"} as NullLiteral;
             case TokenType.NUMBER:
                 return {
                     kind: "NumericLiteral",
@@ -116,7 +119,6 @@ export default class Parser {
                 );
                 return value;
             }
-
             default:
                 console.error(
                     "Unexpected token found during parsing",

@@ -42,31 +42,31 @@ export enum TokenType {
 
 const KEYWORDS: Record<string, TokenType> = {
     //start and end
-    "SUGOD": TokenType.SUGOD,
-    "KATAPUSAN": TokenType.KATAPUSAN,
+    SUGOD: TokenType.SUGOD,
+    KATAPUSAN: TokenType.KATAPUSAN,
 
     //data types
-    "NUMERO": TokenType.NUMERO,
-    "LETRA": TokenType.LETRA,
-    "TIPIK": TokenType.TIPIK,
-    "HILO": TokenType.HILO,
+    NUMERO: TokenType.NUMERO,
+    LETRA: TokenType.LETRA,
+    TIPIK: TokenType.TIPIK,
+    HILO: TokenType.HILO,
     //keywords
-    "MUGNA": TokenType.MUGNA,
-    "TINUOD": TokenType.TINUOD,
-    "WALA": TokenType.WALA,
-    "OO": TokenType.OO,
-    "DILI": TokenType.DILI,
+    MUGNA: TokenType.MUGNA,
+    TINUOD: TokenType.TINUOD,
+    WALA: TokenType.WALA,
+    OO: TokenType.OO,
+    DILI: TokenType.DILI,
     //control structures
-    "KUNG": TokenType.KUNG,
-    "KUNG_DILI": TokenType.KUNG_DILI,
-    "KUNG_DILI_KAY": TokenType.KUNG_DILI_KAY,
+    KUNG: TokenType.KUNG,
+    KUNG_DILI: TokenType.KUNG_DILI,
+    KUNG_DILI_KAY: TokenType.KUNG_DILI_KAY,
     //logical operators
-    "UG": TokenType.UG,
-    "O": TokenType.O,
+    UG: TokenType.UG,
+    O: TokenType.O,
     //loops
-    "SAMTANG": TokenType.SAMTANG,
-    "BUHAT": TokenType.BUHAT,
-    "PARA_SA": TokenType.PARA_SA,
+    SAMTANG: TokenType.SAMTANG,
+    BUHAT: TokenType.BUHAT,
+    PARA_SA: TokenType.PARA_SA,
 };
 
 export interface Token {
@@ -128,10 +128,12 @@ export function tokenize(sourceCode: string): Token[] {
                 }
 
                 const reserved = KEYWORDS[ident];
-                if (reserved === undefined) {
-                    tokens.push(token(ident, TokenType.IDENTIFIER));
-                } else {
+                // enum is a number so if reserve is a number which means it is a reserve keyword
+                if (typeof reserved == "number") {
                     tokens.push(token(ident, reserved));
+                } else {
+                    // pushes an identifier token  when it is not a reserve keyword aka (variable name, function name , and etc)
+                    tokens.push(token(ident, TokenType.IDENTIFIER));
                 }
             } else if (isSkippable(src[0])) {
                 src.shift(); // Skip characters

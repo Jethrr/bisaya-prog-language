@@ -25,7 +25,11 @@ function evaluateNumericBinaryExpression(
     } else if (operator == "*") {
         result = lhs.value * rhs.value;
     } else if (operator == "/") {
-        // TODO: Division by zero checks
+        // TODO: Division by zero check
+        if(rhs.value === 0) {
+            console.error("Division by 0 is not allowed");
+            Deno.exit(1)
+        }
         result = lhs.value / rhs.value;
     } else {
         result = lhs.value % rhs.value;

@@ -1,14 +1,24 @@
-import { BinaryExpr, NumericLiteral, Program, Stmt} from "../frontend/ast/ast.ts";
-import {NullVal, NumberVal, RuntimeVal} from "./values.ts";
+import {
+    BinaryExpr, Identifer,
+    NumericLiteral,
+    Program,
+    Stmt,
+} from "../frontend/ast/ast.ts";
+import {MK_WALA, NumberVal, RuntimeVal} from "./values.ts";
+import Environment from "./environment.ts";
 
-function evaluateProgram(program: Program): RuntimeVal {
-    let lastEvaluated: RuntimeVal = { type: "WALA", value: "WALA" } as NullVal;
+function evaluateProgram(program: Program, env: Environment): RuntimeVal {
+    let lastEvaluated: RuntimeVal =MK_WALA();
     for (const statement of program.body) {
-        lastEvaluated = evaluate(statement);
+        lastEvaluated = evaluate(statement, env);
     }
     return lastEvaluated;
 }
 
+function  evaluateIdentifier(ident : Identifer, env : Environment){
+    const value = env.lookupVar(ident.symbol);
+    return value;
+}
 /**
  * Evaulate pure numeric operations with binary operators.
  */
@@ -18,32 +28,41 @@ function evaluateNumericBinaryExpression(
     operator: string,
 ): NumberVal {
     let result: number;
-    if (operator == "+") {
-        result = lhs.value + rhs.value;
-    } else if (operator == "-") {
-        result = (lhs.value - rhs.value) ;
-    } else if (operator == "*") {
-        result = lhs.value * rhs.value;
-    } else if (operator == "/") {
-        // TODO: Division by zero check
-        if(rhs.value === 0) {
-            console.error("Division by 0 is not allowed");
-            Deno.exit(1)
-        }
-        result = lhs.value / rhs.value;
-    } else {
-        result = lhs.value % rhs.value;
-    }
 
+    switch (operator) {
+        case "+":
+            result = lhs.value + rhs.value;
+            break;
+        case "-":
+            result = lhs.value - rhs.value;
+            break;
+        case "*":
+            result = lhs.value * rhs.value;
+            break;
+        case "/":
+            if (rhs.value === 0) {
+                throw new Error("Division by 0 is not allowed");
+            }
+            result = lhs.value / rhs.value;
+            break;
+        case "%":
+            result = lhs.value % rhs.value;
+            break;
+        default:
+            throw new Error(`Unknown operator: ${operator}`);
+    }
     return { value: result, type: "number" };
 }
 
 /**
  * Evaulates expressions following the binary operation type.
  */
-function evaluateBinaryExpression(binop: BinaryExpr): RuntimeVal {
-    const lhs = evaluate(binop.left);
-    const rhs = evaluate(binop.right);
+function evaluateBinaryExpression(
+    binop: BinaryExpr,
+    env: Environment,
+): RuntimeVal {
+    const lhs = evaluate(binop.left, env);
+    const rhs = evaluate(binop.right, env);
 
     // Only currently support numeric operations
     if (lhs.type == "number" && rhs.type == "number") {
@@ -55,22 +74,23 @@ function evaluateBinaryExpression(binop: BinaryExpr): RuntimeVal {
     }
 
     // One or both are NULL
-    return { type: "WALA", value: "WALA" } as NullVal;
+    return MK_WALA()
 }
 
-export function evaluate(astNode: Stmt): RuntimeVal {
+export function evaluate(astNode: Stmt, env: Environment): RuntimeVal {
     switch (astNode.kind) {
         case "NumericLiteral":
             return {
-              value: ((astNode as NumericLiteral).value),
-              type: "number",
+                value: ((astNode as NumericLiteral).value),
+                type: "number",
             } as unknown as NumberVal;
-        case "NullLiteral":
-            return { value: "WALA", type: "WALA" } as NullVal;
+
+        case "Identifier":
+            return evaluateIdentifier(astNode as Identifer, env);
         case "BinaryExpr":
-            return evaluateBinaryExpression(astNode as BinaryExpr);
+            return evaluateBinaryExpression(astNode as BinaryExpr, env);
         case "Program":
-            return evaluateProgram(astNode as Program);
+            return evaluateProgram(astNode as Program, env);
 
         // Handle unimplimented ast types as error.
         default:

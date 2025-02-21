@@ -1,9 +1,14 @@
+import {TokenType} from "../lexer/lexer.ts";
+
 export type NodeType =
     | "Program"
+
+    |"VarDeclaration"
     | "NumericLiteral"
     | "Identifier"
     | "BinaryExpr"
-    | "NullLiteral";
+
+
 // | "CallExpr"
 // | "UnaryExpr"
 // | "FunctionalDeclaration";
@@ -14,6 +19,16 @@ export interface Stmt {
 export interface Program extends Stmt {
     kind: "Program";
     body: Stmt[];
+}
+
+
+//let x == undefined
+export interface VarDeclaration extends Stmt {
+    kind: "VarDeclaration";
+    isMugna: boolean;
+    identifier : string;
+    dataType : TokenType;
+    value?: Expr
 }
 
 export interface Expr extends Stmt {}
@@ -34,7 +49,3 @@ export interface NumericLiteral extends Expr {
     value: number;
 }
 
-export interface NullLiteral extends Expr{
-    kind : "NullLiteral",
-    value : "WALA";
-}
